@@ -232,3 +232,17 @@ def test_configure_color_scale_interactive_alone():
     gb = GridOptionsBuilder()
     gb.configure_color_scale(interactive=True)
     assert gb.build()["context"][COLOR_SCALE_CONTEXT_KEY] == {"interactive": True}
+
+
+def test_configure_row_fill_appends_and_replaces_by_key():
+    gb = GridOptionsBuilder.from_dataframe(pd.DataFrame({"a": [1]}))
+    gb.configure_color_scale(scheme="positive")
+    gb.configure_row_fill("a", "red")
+    gb.configure_row_fill("b", "blue")
+    gb.configure_row_fill("a", "green")
+    context = gb.build()["context"]
+    assert context["stRowFill"] == [
+        {"key": "a", "color": "green"},
+        {"key": "b", "color": "blue"},
+    ]
+    assert context[COLOR_SCALE_CONTEXT_KEY] == {"scheme": "positive"}

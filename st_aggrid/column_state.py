@@ -37,17 +37,53 @@ columns_state_mode="merge")`` so columns absent from the delta (structural
 columns, and the user's edits elsewhere) are left untouched.
 """
 
-from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Union
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    List,
+    Literal,
+    Mapping,
+    Optional,
+    Required,
+    Sequence,
+    TypedDict,
+    Union,
+)
 
 __all__ = [
+    "ColumnState",
     "set_visibility",
     "visibility_state",
     "derive_user_hidden",
     "derive_overlay",
 ]
 
-# An AG-Grid getColumnState()/applyColumnState() entry.
-ColumnState = Dict[str, object]
+class ColumnState(TypedDict, total=False):
+    """One entry of AG-Grid's ``getColumnState()`` / ``applyColumnState()``.
+
+    Mirrors AG-Grid 36.1's ``ColumnState`` interface. ``colId`` is the one key
+    every entry carries. ``aggFunc`` is a name: a function cannot cross the
+    component boundary. ``showValuesAs`` is a mode name or its config object.
+    """
+
+    colId: Required[str]
+    hide: Optional[bool]
+    width: Optional[float]
+    flex: Optional[float]
+    sort: Optional[Literal["asc", "desc"]]
+    sortType: Optional[Literal["absolute", "default"]]
+    sortIndex: Optional[int]
+    aggFunc: Optional[str]
+    valueIndex: Optional[int]
+    pivot: Optional[bool]
+    pivotIndex: Optional[int]
+    pivotSort: Optional[Literal["asc", "desc"]]
+    pinned: Union[Literal["left", "right"], bool, None]
+    rowGroup: Optional[bool]
+    rowGroupIndex: Optional[int]
+    showValuesAs: Union[str, Dict[str, Any], None]
+    headerName: Optional[str]
 
 # How to pick the aggFunc for a shown value column in pivot mode: one function
 # for all columns (str) or per-column ({colId: aggFunc}).

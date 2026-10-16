@@ -2,6 +2,8 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
+from st_aggrid.column_state import ColumnState
+
 
 class AgGridResult:
     """Result from an AgGrid component instance.
@@ -53,7 +55,7 @@ class AgGridResult:
         return None
 
     @property
-    def column_state(self) -> Optional[List[Dict]]:
+    def column_state(self) -> Optional[List[ColumnState]]:
         """Column state (width, visibility, order, pinned, etc.)."""
         if self._grid_state:
             return self._grid_state.get("columnState")

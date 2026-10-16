@@ -423,3 +423,16 @@ def test_round_trip_user_shown_survives_control_save_load():
     assert by_id["cpi"] == "ratioSum"  # user_shown survived
     assert by_id["ctr"] is None
     assert by_id["arpu7"] == "ratioSum"
+
+
+def test_column_state_requires_only_col_id():
+    from st_aggrid.column_state import ColumnState
+
+    assert ColumnState.__required_keys__ == frozenset({"colId"})
+    assert ColumnState.__optional_keys__ == frozenset(
+        {
+            "hide", "width", "flex", "sort", "sortType", "sortIndex", "aggFunc",
+            "valueIndex", "pivot", "pivotIndex", "pivotSort", "pinned",
+            "rowGroup", "rowGroupIndex", "showValuesAs", "headerName",
+        }
+    )

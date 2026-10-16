@@ -5,6 +5,8 @@ import type {
   ColDef,
   GridApi,
   GridOptions,
+  RowClassParams,
+  RowStyle,
 } from "ag-grid-community"
 import { eachColDef } from "../aggFuncs/foldSums"
 import { anchorD, minmaxT, zIntensity, zScore } from "./normalize"
@@ -19,6 +21,7 @@ import {
 } from "./schemes"
 import { clearStats, extractValue, isTopLevel, statsFor } from "./population"
 import { Override, declarationCandidates } from "./overrides"
+import { readRowFillRules, rowFillFor } from "./rowFill"
 
 // Re-exported so `AgGridComponent.tsx` can invalidate the statistics cache
 // ahead of a `redrawRows()` that is not preceded by `modelUpdated` — see
@@ -484,4 +487,40 @@ export function attachColorScaleInvalidation(api: GridApi): () => void {
     }
     if (!api.isDestroyed()) api.removeEventListener("modelUpdated", onModelUpdated)
   }
+}
+
+/** The built-in `getRowStyle` for `stRowFill`. Reads the rules from
+ * `params.context` on every call, so a live config update is just a new
+ * `context` — `redrawRows` after `updateGridOptions` re-runs it. */
+export function stRowFillStyle(params: RowClassParams): RowStyle | undefined {
+  const color = rowFillFor(readRowFillRules(params.context), params.node)
+  return color === null ? undefined : { backgroundColor: color }
+}
+
+/**
+ * Install `stRowFillStyle` as `getRowStyle` when the grid declares rules.
+ *
+ * `getRowStyle` is one grid-level slot. A caller's own function wins and the
+ * two are never chained — a composed function would have to decide whose
+ * `background` wins, which is the caller's call to make. Python raises on
+ * that combination; this warning is the guard for grid options that never
+ * went through `AgGrid()`.
+ */
+export function registerRowFill(
+  gridOptions: GridOptions,
+  debug: boolean = false
+): GridOptions {
+  const rules = readRowFillRules(gridOptions.context)
+  if (!rules.length) return gridOptions
+  if (gridOptions.getRowStyle) {
+    console.warn(
+      "[st_aggrid] getRowStyle was supplied, so the stRowFill declaration is ignored."
+    )
+    return gridOptions
+  }
+  if (debug) {
+    console.log(`[st_aggrid] stRowFill: ${rules.length} rule(s) installed as getRowStyle.`)
+  }
+  gridOptions.getRowStyle = stRowFillStyle
+  return gridOptions
 }

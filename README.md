@@ -15,13 +15,22 @@ From git:
 
 ```bash
 pip uninstall -y streamlit-aggrid  # only needed once, when upgrading from < 2.2.0
-pip install git+https://github.com/af-ryb/st-aggrid.git@v2.6.0
+pip install git+https://github.com/af-ryb/st-aggrid.git@v2.7.0
 ```
+
+Requires Python 3.13 or newer since 2.7.0.
 
 The distribution was renamed `streamlit-aggrid` → `st-aggrid` in 2.2.0. pip does
 not uninstall the old distribution when installing the new one, and the old
 dist-info's RECORD still claims `st_aggrid/*` — uninstalling it *after* the new
 install would delete files the new install owns. Remove it first.
+
+**2.7.0 typing note.** `ColumnState` (exported from `st_aggrid`) is now a
+`TypedDict` with a required `colId`, and `columns_state`,
+`AgGridResult.column_state` and the `st_aggrid.column_state` helpers are typed
+with it. A type-checked caller passing a hand-built `list[dict]` gets a new
+type error (a `dict` is not a `TypedDict`, and `list` is invariant); annotate
+it as `list[ColumnState]`. Nothing changes at runtime.
 
 ## Quick Start
 
@@ -641,6 +650,42 @@ and a grid-wide `defaultColDef.cellStyle` that disables the scale entirely;
 `test/test_grid_color_scale.py` asserts what each one paints, against the
 reference arithmetic in `test/color_scale_fixture.py`.
 
+#### Group-row fill
+
+To mark one group row — a whole row, not a column — use a grid-level
+`stRowFill` rule instead of a hand-written `getRowStyle`:
+
+```python
+gb.configure_row_fill(key="cohort_1", color="var(--secondary-background-color)")
+# → gridOptions["context"]["stRowFill"] ==
+#     [{"key": "cohort_1", "color": "var(--secondary-background-color)"}]
+```
+
+A rule fills the group row whose own key — the value at that row's level, as
+the grid shows it — equals `key`. Call again with another key to add a rule,
+or with the same key to replace it. The colour is passed through, so a
+`var(--…)` follows a Streamlit theme switch with no rerun.
+
+| Row | Filled when the key matches |
+| --- | --- |
+| group row | yes |
+| its subtotal footer (`groupTotalRow`) | no |
+| grand total | no |
+| leaf row | no |
+
+`key` is always a string: a group over a numeric column has key `"2"`, not
+`2`, and a number is rejected. The key is the browser's rendering of the
+value, so a float column (an int column with a NaN becomes one in pandas)
+still groups `2.0` under `"2"` — write `"2"`, not `str(2.0)`. A rule matches at
+every grouping level: if `"2"` is both a region and a bucket, both rows are
+filled. Cells paint over the row: a column under a
+colour scale keeps its own colour inside its cells, and unpainted cells let
+the row show through. `getRowStyle` is the same grid-level slot, so setting
+both it and a non-empty `stRowFill` raises `ValueError`.
+
+Working example: `test/grid_row_fill.py`, asserted by
+`test/test_grid_row_fill.py`.
+
 #### Letting the reader choose a colour scale
 
 ```python
@@ -797,7 +842,7 @@ AgGrid(
 | `allow_unsafe_jscode` | bool | False | Allow JsCode in grid_options |
 | `enable_enterprise_modules` | bool/str | False | Enable enterprise features |
 | `license_key` | str | None | AG-Grid license key |
-| `columns_state` | dict | None | Initial column state |
+| `columns_state` | list[ColumnState] | None | Initial column state |
 | `color_scale_state` | dict | None | Reader's saved per-column colour-scale choices, as returned by `AgGridResult.color_scale_state`. Read once, at mount. Ignored unless the grid is interactive |
 | `rollup` | dict | None | Server-computed group totals for `aggFunc="stRollup"`: `{"data": cube_df, "dimensions": [...], "flags": {...}}`. See "Server-computed totals" |
 | `theme` | str/StAggridTheme | "streamlit" | Grid theme |
@@ -814,7 +859,7 @@ AgGrid(
 | Property | Type | Description |
 |---|---|---|
 | `.selected_rows` | DataFrame / None | Selected rows |
-| `.column_state` | list[dict] / None | Column state |
+| `.column_state` | list[ColumnState] / None | Column state |
 | `.filter_model` | dict / None | Active filters |
 | `.sort_model` | list[dict] / None | Active sorts |
 | `.grid_state` | dict / None | Full grid state |

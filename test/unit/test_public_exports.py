@@ -121,3 +121,20 @@ def test_every_public_name_is_in_dunder_all():
         "validate_color_scale_columns",
     ):
         assert name in st_aggrid.__all__
+
+
+def test_column_state_type_is_exported():
+    from st_aggrid import ColumnState
+    from st_aggrid.column_state import ColumnState as Inner
+
+    assert ColumnState is Inner
+
+
+def test_row_fill_names_are_exported():
+    from st_aggrid import ROW_FILL_CONTEXT_KEY, validate_row_fill
+    from st_aggrid import row_fill
+
+    assert ROW_FILL_CONTEXT_KEY == "stRowFill"
+    assert validate_row_fill is row_fill.validate_row_fill
+    assert "ROW_FILL_CONTEXT_KEY" in st_aggrid.__all__
+    assert "validate_row_fill" in st_aggrid.__all__
