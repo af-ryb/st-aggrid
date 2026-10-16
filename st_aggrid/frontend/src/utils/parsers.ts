@@ -15,6 +15,7 @@ import {
   ST_COLOR_SCALE_OVERRIDES,
   isInteractive,
   registerColorScales,
+  registerRowFill,
 } from "../colorScales"
 import { registerColorScaleMenu } from "../colorScales/menu"
 
@@ -67,6 +68,10 @@ export function parseGridOptions(
   // reason: both the mount path and the live-update path go through here, so a
   // runtime config change never leaves a declared column unpainted.
   registerColorScales(gridOptions, data.debug === true)
+
+  // The group-row fill. Same site again, so the mount path and the
+  // live-update path both install it.
+  registerRowFill(gridOptions, data.debug === true)
 
   // The reader's choices. Injected after the `cloneDeep` above, so every parse
   // — the mount and each live config update — hands AG-Grid a fresh `context`
