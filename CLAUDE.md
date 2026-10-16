@@ -30,6 +30,8 @@ st_aggrid/                   # Python package
 ├── ratio.py                 # Validation for stRatio/stRatioOfRatios/stWeightedAvg declarations
 ├── color_scale.py           # Validation for stColorScale declarations
 ├── rollup.py                # Validation + transport for the stRollup totals table
+├── row_fill.py              # Validation for stRowFill group-row rules
+├── column_state.py          # ColumnState TypedDict + visibility-delta helpers
 ├── _coldefs.py              # colDef walk shared by the validators
 ├── _numbers.py              # strict number predicates shared by the validators
 └── frontend/                # TypeScript/React frontend (Vite)
@@ -52,6 +54,7 @@ st_aggrid/                   # Python package
     │   ├── colorScales/population.ts  # level-scoped population + memoised stats
     │   ├── colorScales/overrides.ts   # the reader's layer: sanitise, apply a choice, candidate order (pure)
     │   ├── colorScales/menu.ts        # eligibility, the Colour scale ▸ item, the two menu-hook wrappers
+    │   ├── colorScales/rowFill.ts     # stRowFill rules: sanitise + group-row predicate (pure)
     │   ├── colorScales/index.ts       # declaration resolution (three layers), cellStyle, registration
     │   ├── hooks/useAutoCollect.ts   # Auto-collect hook
     │   ├── hooks/useExplicitApiCall.ts
@@ -99,6 +102,10 @@ When updating AG-Grid:
    `createGroupForEmpty` → `""`, and aggregation running before
    `filter_aggregates`. Re-check them in the new build; the guard is
    `test/test_grid_rollup.py`.
+8. Re-check `ColumnState` in `column_state.py` against AG-Grid's `ColumnState`
+   interface, and that a group footer node still carries `footer: true` (the
+   only thing `stRowFill` tells it from its group by; guard:
+   `test/test_grid_row_fill.py`).
 
 ## Build & Dev
 
@@ -172,6 +179,17 @@ Python build: **hatchling** (via `uv build`).
   in the runtime's `INITIAL_GRID_OPTION_KEYS`), so `updateGridOptions` installs
   the hook and the resolver reads it on every open.
 
+- **`stRowFill` fills a group row, not a column**: grid-level rules in
+  `gridOptions["context"]["stRowFill"]`, `[{"key", "color"}]`, matching
+  `node.group && !node.footer && node.key === key` (subtotal footers, the
+  grand total and leaves never). Installed as the built-in `getRowStyle`; a
+  caller's `getRowStyle` alongside non-empty rules raises in Python and is
+  kept, with a warning, in the frontend. Live changes ride the existing
+  `redrawRows()` after `updateGridOptions`.
+- **`ColumnState` is a `TypedDict`** with `colId` required (Python ≥ 3.13,
+  `typing.Required`), used by `columns_state`, `AgGridResult.column_state`
+  and the visibility helpers — the consumer's `ty` gate reads these types.
+
 ## Packaging & asset delivery
 
 - Distribution name is **`st-aggrid`**; the importable package is `st_aggrid`.
@@ -208,7 +226,7 @@ Python build: **hatchling** (via `uv build`).
 - Ratio tests never hand-type an expected number: `test/ratio_fixture.py` owns
   the data and the arithmetic, and declares the nodes it cannot discriminate.
 - The pure modules (`colorScales/normalize.ts`, `schemes.ts`,
-  `overrides.ts`, `aggFuncs/rollupKey.ts`) import nothing and are exercised by
+  `overrides.ts`, `rowFill.ts`, `aggFuncs/rollupKey.ts`) import nothing and are exercised by
   `src/*/__checks__/*.check.ts`, run with plain
   `node <path>.check.ts` — Node 22 strips the types, so the arithmetic has a
   fast test cycle without a JS test runner in a package that ships to the
