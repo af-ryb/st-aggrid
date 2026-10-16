@@ -13,6 +13,7 @@ from st_aggrid.ratio import validate_ratio_columns
 from st_aggrid.result import AgGridResult
 from st_aggrid.column_state import ColumnState
 from st_aggrid.rollup import prepare_rollup
+from st_aggrid.row_fill import validate_row_fill
 from st_aggrid.shared import AgGridTheme, JsCode, StAggridTheme, walk_grid_options
 
 
@@ -467,6 +468,7 @@ def AgGrid(
     # grid — including one built entirely from `grid_options["rowData"]`.
     validate_color_scale_columns(grid_options)
     validate_color_scale_state(color_scale_state)
+    validate_row_fill(grid_options)
 
     # The totals travel the way the leaves do: `data_df is None` exactly when
     # the leaves reach the browser as JSON (no DataFrame, or JSON-serialised).

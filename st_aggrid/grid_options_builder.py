@@ -3,6 +3,7 @@ from collections import defaultdict
 from typing import Optional
 
 from st_aggrid.color_scale import COLOR_SCALE_CONTEXT_KEY
+from st_aggrid.row_fill import ROW_FILL_CONTEXT_KEY
 from st_aggrid.shared import _get_all_column_props, _get_all_grid_options
 
 logger = logging.getLogger(__name__)
@@ -231,6 +232,31 @@ class GridOptionsBuilder:
 
         context = dict(self._grid_options.get("context") or {})
         context[COLOR_SCALE_CONTEXT_KEY] = declaration
+        self._grid_options["context"] = context
+
+    def configure_row_fill(self, key: str, color: str):
+        """Fill the group row whose own key is `key` with `color`.
+
+        Only the group row itself: its subtotal footer, the grand total and
+        leaf rows are never filled. Calling again with the same `key`
+        replaces that rule; a new `key` adds one. Validated by `AgGrid()`.
+
+        Args:
+            key (str): the group key at the row's own level, as the grid
+                shows it (always a string, also for a numeric column).
+            color (str): any CSS colour, `var(--…)` included — it is passed
+                through and follows a theme switch with no rerun.
+        """
+        context = dict(self._grid_options.get("context") or {})
+        existing = list(context.get(ROW_FILL_CONTEXT_KEY) or [])
+        new_rule = {"key": key, "color": color}
+        for index, rule in enumerate(existing):
+            if isinstance(rule, dict) and rule.get("key") == key:
+                existing[index] = new_rule
+                break
+        else:
+            existing.append(new_rule)
+        context[ROW_FILL_CONTEXT_KEY] = existing
         self._grid_options["context"] = context
 
     def configure_side_bar(

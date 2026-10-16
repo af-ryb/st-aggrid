@@ -128,3 +128,13 @@ def test_column_state_type_is_exported():
     from st_aggrid.column_state import ColumnState as Inner
 
     assert ColumnState is Inner
+
+
+def test_row_fill_names_are_exported():
+    from st_aggrid import ROW_FILL_CONTEXT_KEY, validate_row_fill
+    from st_aggrid import row_fill
+
+    assert ROW_FILL_CONTEXT_KEY == "stRowFill"
+    assert validate_row_fill is row_fill.validate_row_fill
+    assert "ROW_FILL_CONTEXT_KEY" in st_aggrid.__all__
+    assert "validate_row_fill" in st_aggrid.__all__
