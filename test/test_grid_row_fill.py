@@ -23,6 +23,7 @@ APP_FILE = ROOT_DIRECTORY / "test" / "grid_row_fill.py"
 GROUPED_GRID = 0
 PIVOT_GRID = 1
 LIVE_GRID = 2
+SKIPPED_GRID = 3
 
 EU_RGB = (11, 12, 13, 1.0)
 BUCKET_RGB = (21, 22, 23, 1.0)
@@ -42,12 +43,12 @@ def go_to_app(page: Page, streamlit_app: StreamlitRunner):
     page.goto(streamlit_app.server_url)
     page.get_by_role("img", name="Running...").is_hidden()
     page.wait_for_function(
-        "() => document.querySelectorAll('.ag-root-wrapper').length >= 3",
+        "() => document.querySelectorAll('.ag-root-wrapper').length >= 4",
         timeout=60000,
     )
     # Every grid has its grand total rendered once the model is built.
     page.wait_for_function(
-        """() => [...document.querySelectorAll('.ag-root-wrapper')].slice(0, 3)
+        """() => [...document.querySelectorAll('.ag-root-wrapper')].slice(0, 4)
              .every(g => [...g.querySelectorAll('.ag-row')]
                .some(r => r.textContent.trim().startsWith('Total')))""",
         timeout=60000,
@@ -215,3 +216,13 @@ def test_rerun_removing_the_rule_clears_the_row(page: Page):
 def test_rerun_recolouring_the_rule_repaints_the_row(page: Page):
     toggle(page, "recolour")
     eventually(lambda: _assert_filled(find(page, LIVE_GRID, "EU", level=0)[0], RECOLOUR_RGB))
+
+
+def test_rerun_without_any_context_clears_the_row(page: Page):
+    """`build()` emits no `context` once `configure_row_fill` is skipped, and
+    `updateGridOptions` keeps any key it is not given — so the old rules and
+    the installed `getRowStyle` would otherwise survive."""
+    (eu,) = find(page, SKIPPED_GRID, "EU", level=0)
+    assert filled_with(eu, EU_RGB), eu
+    toggle(page, "skip fill")
+    eventually(lambda: assert_not_rule_coloured(find(page, SKIPPED_GRID, "EU", level=0)[0]))

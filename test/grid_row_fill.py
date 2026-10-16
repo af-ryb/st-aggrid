@@ -117,3 +117,20 @@ AgGrid(
     enable_enterprise_modules=True,
     key="live",
 )
+
+st.subheader("3 — the builder call skipped on a rerun")
+# No other `context` on this grid: no rollup, no colour scale. Skipping
+# `configure_row_fill` leaves no `context` key in the options at all, which a
+# live `updateGridOptions` must read as "no rules", not as "keep the old ones".
+skip = st.checkbox("skip fill", key="skip")
+gb3 = GridOptionsBuilder.from_dataframe(df)
+gb3.configure_column("region", rowGroup=True, rowGroupIndex=0, hide=True)
+gb3.configure_column("bucket", rowGroup=True, rowGroupIndex=1, hide=True)
+gb3.configure_column("value", aggFunc="sum")
+gb3.configure_column("plain", aggFunc="sum")
+gb3.configure_grid_options(**COMMON_OPTIONS)
+if not skip:
+    gb3.configure_row_fill(key="EU", color=EU_COLOR)
+options3 = gb3.build()
+assert skip is ("context" not in options3), options3.get("context")
+AgGrid(df, grid_options=options3, enable_enterprise_modules=True, key="skipped")

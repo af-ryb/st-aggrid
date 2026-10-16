@@ -602,6 +602,12 @@ const AgGridComponent: React.FC<AgGridComponentProps> = ({
         rollupHolder
       )
       delete (go as any).rowData
+      // `updateGridOptions` keeps every key it is not given. A rerun whose
+      // options carry no `context` at all (e.g. `configure_row_fill` skipped
+      // and nothing else writes one) must mean "no declarations", not "keep
+      // the previous context" — otherwise its `stRowFill` rules, and the
+      // `getRowStyle` they installed, would keep painting.
+      go.context = go.context ?? {}
 
       // Snapshot the live sort before updateGridOptions. Re-processing
       // columnDefs reverts sort to the colDef `initialSort` default, so the
