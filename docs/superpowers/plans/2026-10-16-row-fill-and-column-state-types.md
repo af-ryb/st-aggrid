@@ -75,7 +75,7 @@ def test_column_state_type_is_exported():
 - [ ] **Step 5: Verify against the consumer** (read-only on web_app):
 ```bash
 S=$(mktemp -d) && cp -r st_aggrid "$S/" && rm -rf "$S/st_aggrid/frontend"
-cd ~/repo/hitapps_analytics && .venv/bin/ty check --output-format concise --extra-search-path "$S" web_app/src/bi_core/charts/grid_state.py
+cd ~/repo/hitapps_analytics && env -u VIRTUAL_ENV .venv/bin/ty check --python .venv --output-format concise --extra-search-path "$S" web_app/src/bi_core/charts/grid_state.py
 ```
 Expected: `All checks passed!`. Then the same over `web_app` → total exactly 3 lower than without `--extra-search-path`.
 

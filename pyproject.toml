@@ -3,7 +3,7 @@ name = "st-aggrid"
 version = "2.6.0"
 description = "Streamlit component implementation of ag-grid (CCv2, no iframe)"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 license = { text = "MIT" }
 authors = [{ name = "Pablo Fonseca", email = "pablo.fonseca+pip@gmail.com" }]
 keywords = ["streamlit", "ag-grid", "component"]

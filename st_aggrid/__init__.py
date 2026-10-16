@@ -29,6 +29,7 @@ any.
 
 from st_aggrid.aggrid import AgGrid, call_grid_api
 from st_aggrid.column_state import (
+    ColumnState,
     derive_overlay,
     derive_user_hidden,
     set_visibility,
@@ -77,6 +78,7 @@ __all__ = [
     "COLOR_SCALE_SCHEMES",
     "COLOR_SCALE_SCOPES",
     "CONTEXT_KEY",
+    "ColumnState",
     "GridOptionsBuilder",
     "JsCode",
     "RATIO_AGG_FUNC",

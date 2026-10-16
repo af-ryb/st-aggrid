@@ -11,6 +11,7 @@ from st_aggrid.color_scale import validate_color_scale_columns, validate_color_s
 from st_aggrid.component import get_aggrid_component
 from st_aggrid.ratio import validate_ratio_columns
 from st_aggrid.result import AgGridResult
+from st_aggrid.column_state import ColumnState
 from st_aggrid.rollup import prepare_rollup
 from st_aggrid.shared import AgGridTheme, JsCode, StAggridTheme, walk_grid_options
 
@@ -180,7 +181,7 @@ def AgGrid(
     allow_unsafe_jscode: bool = False,
     enable_enterprise_modules: Union[bool, Literal["enterpriseOnly", "enterprise+AgCharts"]] = False,
     license_key: Optional[str] = None,
-    columns_state: Optional[Dict] = None,
+    columns_state: Optional[List[ColumnState]] = None,
     columns_state_mode: Literal["replace", "merge"] = "replace",
     initial_state: Optional[Dict] = None,
     color_scale_state: Optional[Dict] = None,
@@ -245,8 +246,8 @@ def AgGrid(
     license_key : str, optional
         AG-Grid Enterprise license key.
 
-    columns_state : dict, optional
-        A ColumnState[] list (the shape of ``getColumnState()``) applied to the
+    columns_state : list of ColumnState, optional
+        A ``ColumnState`` list (the shape of ``getColumnState()``) applied to the
         grid. Covers visibility, order, width, pinning, sort, rowGroup, pivot and
         aggFunc. To clear an aggregation in pivot mode pass an explicit
         ``aggFunc: None`` (an omitted key leaves the aggregation in place) — the

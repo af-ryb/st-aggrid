@@ -37,17 +37,46 @@ columns_state_mode="merge")`` so columns absent from the delta (structural
 columns, and the user's edits elsewhere) are left untouched.
 """
 
-from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Union
+from typing import (
+    Dict,
+    Iterable,
+    List,
+    Literal,
+    Mapping,
+    Optional,
+    Required,
+    Sequence,
+    TypedDict,
+    Union,
+)
 
 __all__ = [
+    "ColumnState",
     "set_visibility",
     "visibility_state",
     "derive_user_hidden",
     "derive_overlay",
 ]
 
-# An AG-Grid getColumnState()/applyColumnState() entry.
-ColumnState = Dict[str, object]
+class ColumnState(TypedDict, total=False):
+    """One entry of AG-Grid's ``getColumnState()`` / ``applyColumnState()``.
+
+    ``colId`` is the one key every entry carries. ``aggFunc`` is a name: a
+    function cannot cross the component boundary.
+    """
+
+    colId: Required[str]
+    hide: Optional[bool]
+    width: float
+    flex: Optional[float]
+    pinned: Optional[Literal["left", "right"]]
+    sort: Optional[Literal["asc", "desc"]]
+    sortIndex: Optional[int]
+    aggFunc: Optional[str]
+    rowGroup: Optional[bool]
+    rowGroupIndex: Optional[int]
+    pivot: Optional[bool]
+    pivotIndex: Optional[int]
 
 # How to pick the aggFunc for a shown value column in pivot mode: one function
 # for all columns (str) or per-column ({colId: aggFunc}).

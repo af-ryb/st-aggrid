@@ -249,7 +249,7 @@ grid_state.py:925  sorted(): same
   it is the one **required** key.
 
 With both fixes the spike gave **`All checks passed!`** on `grid_state.py`,
-and the whole-app count went 1763 → 1760 — exactly three fewer, nothing new
+and the whole-app count went 1940 → 1937 — exactly three fewer, nothing new
 elsewhere. The fork's own `column_state.py` / `result.py` / `aggrid.py` gained
 no diagnostic (the one pre-existing, `aggrid.py:175` `data: … = None`, is
 untouched and out of scope).
