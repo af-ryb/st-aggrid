@@ -173,19 +173,6 @@ function cellStyle(params) {
 }
 """)
 
-js_cohort_row_style = JsCode("""
-function cohortStyle(params) {
-  let secondaryBackgroundColor = getComputedStyle(document.documentElement)
-    .getPropertyValue('--secondary-background-color');
-    if (params.node.group) {
-        if (params.node.key === 'cohort_1') {
-            return { background: secondaryBackgroundColor};
-        }
-    }
-    return null;
-}
-""")
-
 js_hide_columns = JsCode("""
 function hide_columns(gridOptions) {
   // Metrics to hide for non-zero cohort days
@@ -372,7 +359,11 @@ options = {
     "grandTotalRow": "before",
     "suppressAggFuncInHeader": True,
     "enableStrictPivotColumnOrder": strict_pivot_order,
-    "getRowStyle": js_cohort_row_style,
+    "context": {
+        "stRowFill": [
+            {"key": "cohort_1", "color": "var(--secondary-background-color)"}
+        ]
+    },
     "autoGroupColumnDef": {"cellRendererParams": {"suppressCount": True}},
     "cellSelection": True,
     "copyHeadersToClipboard": True,
