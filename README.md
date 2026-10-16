@@ -674,7 +674,11 @@ or with the same key to replace it. The colour is passed through, so a
 | leaf row | no |
 
 `key` is always a string: a group over a numeric column has key `"2"`, not
-`2`, and a number is rejected. Cells paint over the row: a column under a
+`2`, and a number is rejected. The key is the browser's rendering of the
+value, so a float column (an int column with a NaN becomes one in pandas)
+still groups `2.0` under `"2"` — write `"2"`, not `str(2.0)`. A rule matches at
+every grouping level: if `"2"` is both a region and a bucket, both rows are
+filled. Cells paint over the row: a column under a
 colour scale keeps its own colour inside its cells, and unpainted cells let
 the row show through. `getRowStyle` is the same grid-level slot, so setting
 both it and a non-empty `stRowFill` raises `ValueError`.

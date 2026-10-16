@@ -78,7 +78,8 @@ def validate_row_fill(grid_options: Optional[dict]) -> None:
             )
         seen.add(key)
 
-    if rules and "getRowStyle" in grid_options:
+    # `getRowStyle=None` installs no function, so the frontend would not yield.
+    if rules and grid_options.get("getRowStyle") is not None:
         raise ValueError(
             f"gridOptions sets both getRowStyle and {where}. They fill the same "
             f"slot and getRowStyle would win, so the declaration would be "

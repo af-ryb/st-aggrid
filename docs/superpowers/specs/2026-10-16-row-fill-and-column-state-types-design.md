@@ -263,16 +263,21 @@ class ColumnState(TypedDict, total=False):
     """One entry of AG-Grid's ``getColumnState()`` / ``applyColumnState()``."""
     colId: Required[str]
     hide: Optional[bool]
-    width: float
+    width: Optional[float]
     flex: Optional[float]
-    pinned: Optional[Literal["left", "right"]]
     sort: Optional[Literal["asc", "desc"]]
+    sortType: Optional[Literal["absolute", "default"]]
     sortIndex: Optional[int]
     aggFunc: Optional[str]
-    rowGroup: Optional[bool]
-    rowGroupIndex: Optional[int]
+    valueIndex: Optional[int]
     pivot: Optional[bool]
     pivotIndex: Optional[int]
+    pivotSort: Optional[Literal["asc", "desc"]]
+    pinned: Union[Literal["left", "right"], bool, None]
+    rowGroup: Optional[bool]
+    rowGroupIndex: Optional[int]
+    showValuesAs: Union[str, Dict[str, Any], None]
+    headerName: Optional[str]
 ```
 
 `typing.Required` (3.11+) is used directly: `requires-python` moves from
@@ -281,7 +286,7 @@ class ColumnState(TypedDict, total=False):
 required-`colId` base class — were checked in the spike and clear the same
 diagnostics; `Required` is the one that reads as what it means. `aggFunc` is `str`, not AG-Grid's
 `string | IAggFunc`: a function cannot cross the component boundary as JSON.
-The field list is AG-Grid 36.1's `ColumnState` interface; it is re-checked on
+The field list is AG-Grid 36.1's `ColumnState` interface (`ColumnStateParams` in `columns/columnStateUtils.d.ts`, re-checked after the final review found five keys missing); it is re-checked on
 AG-Grid bumps (add a line to CLAUDE.md's update checklist).
 
 `st_aggrid/aggrid.py:183` — `columns_state: Optional[List[ColumnState]] = None`;

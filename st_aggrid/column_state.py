@@ -38,6 +38,7 @@ columns, and the user's edits elsewhere) are left untouched.
 """
 
 from typing import (
+    Any,
     Dict,
     Iterable,
     List,
@@ -61,22 +62,28 @@ __all__ = [
 class ColumnState(TypedDict, total=False):
     """One entry of AG-Grid's ``getColumnState()`` / ``applyColumnState()``.
 
-    ``colId`` is the one key every entry carries. ``aggFunc`` is a name: a
-    function cannot cross the component boundary.
+    Mirrors AG-Grid 36.1's ``ColumnState`` interface. ``colId`` is the one key
+    every entry carries. ``aggFunc`` is a name: a function cannot cross the
+    component boundary. ``showValuesAs`` is a mode name or its config object.
     """
 
     colId: Required[str]
     hide: Optional[bool]
-    width: float
+    width: Optional[float]
     flex: Optional[float]
-    pinned: Optional[Literal["left", "right"]]
     sort: Optional[Literal["asc", "desc"]]
+    sortType: Optional[Literal["absolute", "default"]]
     sortIndex: Optional[int]
     aggFunc: Optional[str]
-    rowGroup: Optional[bool]
-    rowGroupIndex: Optional[int]
+    valueIndex: Optional[int]
     pivot: Optional[bool]
     pivotIndex: Optional[int]
+    pivotSort: Optional[Literal["asc", "desc"]]
+    pinned: Union[Literal["left", "right"], bool, None]
+    rowGroup: Optional[bool]
+    rowGroupIndex: Optional[int]
+    showValuesAs: Union[str, Dict[str, Any], None]
+    headerName: Optional[str]
 
 # How to pick the aggFunc for a shown value column in pivot mode: one function
 # for all columns (str) or per-column ({colId: aggFunc}).

@@ -431,7 +431,8 @@ def test_column_state_requires_only_col_id():
     assert ColumnState.__required_keys__ == frozenset({"colId"})
     assert ColumnState.__optional_keys__ == frozenset(
         {
-            "hide", "width", "flex", "pinned", "sort", "sortIndex", "aggFunc",
-            "rowGroup", "rowGroupIndex", "pivot", "pivotIndex",
+            "hide", "width", "flex", "sort", "sortType", "sortIndex", "aggFunc",
+            "valueIndex", "pivot", "pivotIndex", "pivotSort", "pinned",
+            "rowGroup", "rowGroupIndex", "showValuesAs", "headerName",
         }
     )

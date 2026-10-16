@@ -76,6 +76,11 @@ def test_duplicate_key():
         validate_row_fill(opts(rules))
 
 
+def test_get_row_style_none_is_not_a_conflict():
+    # The frontend only yields to a truthy getRowStyle; None must not raise.
+    validate_row_fill(opts([{"key": "a", "color": "red"}], getRowStyle=None))
+
+
 def test_conflict_with_get_row_style():
     with pytest.raises(ValueError, match="getRowStyle"):
         validate_row_fill(opts([{"key": "a", "color": "red"}], getRowStyle="f"))
