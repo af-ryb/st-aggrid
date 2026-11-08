@@ -48,6 +48,10 @@ export interface StreamlitThemeInfo {
   secondaryBackgroundColor: string
   font: string
   base: "light" | "dark"
+  dataframeBorderColor?: string
+  dataframeHeaderBackgroundColor?: string
+  dataframeHeaderTextColor?: string
+  baseRadius?: string
 }
 
 export interface ApiCallRequest {

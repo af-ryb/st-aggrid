@@ -15,7 +15,7 @@ From git:
 
 ```bash
 pip uninstall -y streamlit-aggrid  # only needed once, when upgrading from < 2.2.0
-pip install git+https://github.com/af-ryb/st-aggrid.git@v2.7.0
+pip install git+https://github.com/af-ryb/st-aggrid.git@v2.8.0
 ```
 
 Requires Python 3.13 or newer since 2.7.0.
