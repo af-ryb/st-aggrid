@@ -13,6 +13,10 @@ const VAR_TEXT = "--st-text-color"
 const VAR_PRIMARY = "--st-primary-color"
 const VAR_SECONDARY_BG = "--st-secondary-background-color"
 const VAR_FONT = "--st-font"
+const VAR_DATAFRAME_BORDER = "--st-dataframe-border-color"
+const VAR_DATAFRAME_HEADER_BG = "--st-dataframe-header-background-color"
+const VAR_DATAFRAME_HEADER_TEXT = "--st-dataframe-header-text-color"
+const VAR_BASE_RADIUS = "--st-base-radius"
 
 function parseHexLuminance(hex: string): number | null {
   const clean = hex.trim().replace(/^#/, "")
@@ -40,6 +44,15 @@ function computeBase(bg: string): "light" | "dark" {
   return lum < 0.5 ? "dark" : "light"
 }
 
+// Older Streamlit lacks these variables; an option without a value reads "unset".
+function readOptional(
+  styles: CSSStyleDeclaration,
+  name: string
+): string | undefined {
+  const value = styles.getPropertyValue(name).trim()
+  return value && value !== "unset" ? value : undefined
+}
+
 function readTheme(element: Element | null): StreamlitThemeInfo | null {
   if (typeof window === "undefined" || typeof document === "undefined") {
     return null
@@ -61,6 +74,10 @@ function readTheme(element: Element | null): StreamlitThemeInfo | null {
     secondaryBackgroundColor: secondaryBg,
     font,
     base: computeBase(bg),
+    dataframeBorderColor: readOptional(styles, VAR_DATAFRAME_BORDER),
+    dataframeHeaderBackgroundColor: readOptional(styles, VAR_DATAFRAME_HEADER_BG),
+    dataframeHeaderTextColor: readOptional(styles, VAR_DATAFRAME_HEADER_TEXT),
+    baseRadius: readOptional(styles, VAR_BASE_RADIUS),
   }
 }
 
@@ -76,7 +93,11 @@ function themesEqual(
     a.textColor === b.textColor &&
     a.primaryColor === b.primaryColor &&
     a.secondaryBackgroundColor === b.secondaryBackgroundColor &&
-    a.font === b.font
+    a.font === b.font &&
+    a.dataframeBorderColor === b.dataframeBorderColor &&
+    a.dataframeHeaderBackgroundColor === b.dataframeHeaderBackgroundColor &&
+    a.dataframeHeaderTextColor === b.dataframeHeaderTextColor &&
+    a.baseRadius === b.baseRadius
   )
 }
 

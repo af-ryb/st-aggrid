@@ -19,6 +19,8 @@ import {
 } from "ag-grid-community"
 
 import isEmpty from "lodash/isEmpty"
+import isNil from "lodash/isNil"
+import omitBy from "lodash/omitBy"
 
 import type { StreamlitThemeInfo } from "./types/AgGridTypes"
 
@@ -53,25 +55,35 @@ class ThemeParser {
 
   streamlitRecipe(streamlitTheme: StreamlitThemeInfo): Theme {
     let theme: Theme = this.baseMapper["balham"]
-    const font =
-      streamlitTheme?.font?.split(",").at(1)?.trim() || "Source Sans Pro"
-    const fontFamily = [font, { googleFont: font }]
-
-    theme = theme
-      .withParams({
-        accentColor: streamlitTheme?.primaryColor,
-        fontFamily: fontFamily,
-        foregroundColor: streamlitTheme?.textColor,
-        backgroundColor: streamlitTheme?.backgroundColor,
-      })
       .withPart(iconSetQuartzLight)
       .withPart(this.partsMapper.iconSetQuartzRegular)
 
+    // A colour scheme sets its own background and text, so it must come
+    // before the params below or it overrides the Streamlit colours.
     if (streamlitTheme?.base === "dark") {
       theme = theme.withPart(colorSchemeDark)
     }
 
-    return theme
+    return theme.withParams(
+      omitBy(
+        {
+          accentColor: streamlitTheme?.primaryColor,
+          fontFamily: streamlitTheme?.font,
+          foregroundColor: streamlitTheme?.textColor,
+          backgroundColor: streamlitTheme?.backgroundColor,
+          oddRowBackgroundColor: streamlitTheme?.backgroundColor,
+          chromeBackgroundColor: streamlitTheme?.dataframeHeaderBackgroundColor,
+          headerBackgroundColor: streamlitTheme?.dataframeHeaderBackgroundColor,
+          headerTextColor: streamlitTheme?.dataframeHeaderTextColor,
+          headerFontWeight: "normal",
+          borderColor: streamlitTheme?.dataframeBorderColor,
+          columnBorder: true,
+          headerColumnBorder: true,
+          wrapperBorderRadius: streamlitTheme?.baseRadius,
+        },
+        isNil
+      )
+    )
   }
 
   alpineRecipe() {
